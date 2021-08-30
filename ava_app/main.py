@@ -88,7 +88,11 @@ if __name__ == '__main__':
     if args.action == 'start' and args.type == 'http':
         operations_data_json = pathlib.Path('operations_start_http.json').read_text()
     elif args.action == 'stop' and args.type == 'http':
-        operations_data_json = pathlib.Path('operations_delete_http.json').read_text()
+        operations_data_json = pathlib.Path('operations_delete_http.json').read_text()  
+    elif args.action == 'start' and args.type == 'http-debug':
+        operations_data_json = pathlib.Path('operations_start_http_debug.json').read_text()
+    elif args.action == 'stop' and args.type == 'http-debug':
+        operations_data_json = pathlib.Path('operations_delete_http_debug.json').read_text()
     elif args.action == 'start' and args.type == 'cvr':
         operations_data_json = pathlib.Path('operations_start_cvr.json').read_text()
     elif args.action == 'stop' and args.type == 'cvr':

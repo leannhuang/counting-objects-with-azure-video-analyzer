@@ -104,7 +104,42 @@ def score():
 # This function scores the image and stores an annotated image for debugging purposes
 @app.route('/score-debug', methods=['POST'])
 def score_debug():
-    pass
+    """This function returns a JSON object with inference duration and detected objects"""
+    try:
+        now = datetime.now()
+        print("Get the frame from AVA")
+        print(f'now: {now}')
+        detected_objects = []
+        # send mock bounding box to AVA w/o collecting msg with “receive_message_on_input" function
+        json_data = {
+                        "type": "entity",
+                        "entity" : {
+                            "tag" : {
+                                "value" : "person",
+                                "confidence": float(0.9),
+                            },
+                            "box": {
+                                "l": 0.2,
+                                "t": 0.3,
+                                "w": 0.5,
+                                "h": 0.5
+                            }
+                        }
+                    }
+        
+        detected_objects.append(json_data)
+        respBody = {
+                        "inferences" : detected_objects
+                    }
+        respBody = json.dumps(respBody)
+        return Response(respBody, status=200, mimetype='application/json')
+    
+    
+    except Exception as err:
+        # PrintGetExceptionDetails()
+        print(f'exception: {str(err)}')
+        logging.error("Exception in score_debug function.")
+        return Response(json.dumps({"Execption in score_debug function: {}".format(err)}), status=500)
 
 if __name__ == '__main__':
     # Running the file directly

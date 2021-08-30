@@ -5,6 +5,11 @@ AVA_PROVISIONING_TOKEN=<AVA provisioning token found in the avaedge Module Twin 
 CONTAINER_REGISTRY_USERNAME_myacr=<optional>
 CONTAINER_REGISTRY_PASSWORD_myacr=<optional>
 
+CONTAINER_REGISTRY_eye=<optional>
+CONTAINER_REGISTRY_USERNAME_eye=<optional>
+CONTAINER_REGISTRY_PASSWORD_eye=<optional>
+
+
 # If changing the following, ensure the paths exist with the proper permissions on the device
 VIDEO_INPUT_FOLDER_ON_DEVICE=/home/localedgeuser/samples/input
 VIDEO_OUTPUT_FOLDER_ON_DEVICE=/var/media/

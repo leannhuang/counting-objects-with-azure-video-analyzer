@@ -10,6 +10,11 @@
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
             "registryCredentials": {
+              "$CONTAINER_REGISTRY_eye": {
+                "username": "$CONTAINER_REGISTRY_USERNAME_eye",
+                "password": "$CONTAINER_REGISTRY_PASSWORD_eye",
+                "address": "$CONTAINER_REGISTRY_eye.azurecr.io"
+              }
             }
           }
         },
@@ -85,7 +90,7 @@
           },
           "simpleserver": {
             "settings": {
-              "image": "rheartpython/avaextension-simple-http-server:v1.0",
+              "image": "aya65535/simpleserver:0.0.0",
               "createOptions": {
               }
             },
@@ -96,7 +101,7 @@
           },
           "azureeyemodule": {
               "settings": {
-                  "image": "mcr.microsoft.com/azureedgedevices/azureeyemodule:2106-2",
+                  "image": "msint.azurecr.io/azureedgedevices/azureeyemodule:37887224-arm64v8",
                   "createOptions": {
                     "ExposedPorts": {
                       "8554/udp":{},
