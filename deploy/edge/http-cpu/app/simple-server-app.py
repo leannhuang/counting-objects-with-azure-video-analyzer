@@ -8,7 +8,8 @@ from flask import Flask, Response, Request, abort, request
 from azure.iot.device import IoTHubModuleClient
 
 from exception_handler import PrintGetExceptionDetails
-
+from infer_cache import infer_cache
+from listen_thread import ListenThread
 
 def init_logging():
     gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -44,60 +45,30 @@ def score():
     """This function returns a JSON object with inference duration and detected objects"""
     # Current date and time - might be overwritten by avaedge timestamp
     now = datetime.now()
-    utc_now = datetime.now(timezone.utc).timestamp()
     try:
-        input_message = module_client.receive_message_on_input("input1")  # blocking call
-        if input_message.data:
-            print("{} The data in the message received on azureeyemodule was {}".format(now, input_message.data))
-            print("{} Custom properties are {}".format(now, input_message.custom_properties))
-
-            # Gather inferences from azureeyemodule to correspond with when AVA is sending data
-            # NB:  AVA is still sending images, but we are ignoring them
-            inference_list = json.loads(input_message.data)['NEURAL_NETWORK']
-            detected_objects = []
-            if isinstance(inference_list, list):
-                for item in inference_list:
-                    xmin, ymin, xmax, ymax = [float(x) for x in item["bbox"]]
-                    json_data = {
-                        "type": "entity",
-                        "entity" : {
-                            "tag" : {
-                                "value" : item["label"],
-                                "confidence": float(item["confidence"])
-                            },
-                            "box": {
-                                "l": xmin,
-                                "t": ymin,
-                                "w": xmax-xmin,
-                                "h": ymax-ymin
-                            }
-                        }
+        respBody = {
+                 "inferences" : []
+                 }
+        print("--------http request handler--------")
+        print("Get the frame from AVA")
+        print(f'time: {now}')
+        # get bounding box with closest timestamp
+        infer_result, closest_ts = infer_cache.get(now)
+        respBody = {
+                        "timestamp" : str(closest_ts),
+                        "inferences" : infer_result
                     }
-                    detected_objects.append(json_data)
 
-            if len(detected_objects) > 0:
-                respBody = {
-                    "timestamp" : utc_now,
-                    "inferences" : detected_objects
-                }
-                respBody = json.dumps(respBody)
-                return Response(respBody, status=200, mimetype='application/json')
-            else:
-                logging.info("No detections from azureeyemodule")
-                respBody = {
-                    "timestamp" : utc_now,
-                    "inferences" : []
-                }
-                respBody = json.dumps(respBody)
-                return Response(respBody, status=200, mimetype='application/json')               
-        else:
-            logging.info("No data in message from azureeyemodule")
-            return Response(json.dumps({'No data from azureyemodule'}),
-                            status=204, 
-                            mimetype='application/json')
+        respBody = json.dumps(respBody)
+        print(f'resp: {respBody}')
+        print('*************************************')
+        
+        return Response(respBody, status=200, mimetype='application/json')
+
+
     except Exception as err:
         # PrintGetExceptionDetails()
-        logging.error("Exception in score function.")
+        logging.error("Exception in score function.")      
         return Response(json.dumps({"Execption in score function: {}".format(err)}), status=500)
 
 # /score-debug routes to score_debug
@@ -106,9 +77,6 @@ def score():
 def score_debug():
     """This function returns a JSON object with inference duration and detected objects"""
     try:
-        now = datetime.now()
-        print("Get the frame from AVA")
-        print(f'now: {now}')
         detected_objects = []
         # send mock bounding box to AVA w/o collecting msg with “receive_message_on_input" function
         json_data = {
@@ -140,6 +108,9 @@ def score_debug():
         print(f'exception: {str(err)}')
         logging.error("Exception in score_debug function.")
         return Response(json.dumps({"Execption in score_debug function: {}".format(err)}), status=500)
+
+listen_thread = ListenThread(infer_cache)
+listen_thread.start()
 
 if __name__ == '__main__':
     # Running the file directly

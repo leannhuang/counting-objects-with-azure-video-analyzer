@@ -29,8 +29,6 @@ RUN mkdir /app && \
     apt-get clean && \
     apt-get purge -y --auto-remove wget
 
-COPY app/exception_handler.py /app
-
 # Copy nginx config file
 COPY simple-server-app.conf /etc/nginx/sites-available
 
@@ -46,7 +44,7 @@ RUN mkdir /var/runit && \
     chmod +x /var/runit/gunicorn/run
 
 # Copy the app file and the tags file
-COPY app/simple-server-app.py /app/
+COPY app/* /app/
 
 EXPOSE 80
 

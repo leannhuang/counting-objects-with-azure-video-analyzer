@@ -90,7 +90,7 @@
           },
           "simpleserver": {
             "settings": {
-              "image": "aya65535/simpleserver:0.0.0",
+              "image": "aya65535/simpleserver:0.0.7",
               "createOptions": {
               }
             },
@@ -166,11 +166,11 @@
     "azureeyemodule": {
         "properties.desired": {
             "Logging": true,
-            "ModelZipUrl": "",
+            "ModelZipUrl": "https://aedsamples.blob.core.windows.net/vision/aeddevkitnew/person-detection-retail-0013.zip",
             "RawStream": false,
             "ResultStream": false,
             "Running": true,
-            "TelemetryInterval": 1000,
+            "TelemetryInterval": 10,
             "StreamFPS": 5
         }
     }
